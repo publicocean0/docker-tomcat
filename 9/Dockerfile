@@ -2,7 +2,10 @@ FROM debian:stretch-slim
 
 # Setup JAVA_HOME
 ENV JAVA_HOME="/usr/lib/jvm/default-jvm"
-
+ENV RUN_USER            tomcat
+ENV RUN_GROUP           tomcat
+ENV RUN_USER_ID         10004
+ENV RUN_GROUP_ID        10004
 # Install Oracle Server JRE (Java SE Runtime Environment) 10.0.1
 RUN JAVA_VERSION=10 && \
     JAVA_UPDATE=0.1 && \
@@ -198,8 +201,12 @@ RUN set -e \
 		exit 1; \
 	fi
 
+RUN groupadd -r ${RUN_GROUP} -g  ${RUN_GROUP_ID}  && useradd -g ${RUN_GROUP} -d ${CATALINA_HOME} -u ${RUN_USER_ID} -s /bin/bash ${RUN_USER}
+RUN chown -R tomcat:tomcat $CATALINA_HOME
+USER tomcat
+WORKDIR /usr/local/tomcat
 
-
+EXPOSE 8009
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
 
